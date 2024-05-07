@@ -1,63 +1,58 @@
 <template>
     <div>
         <div class="tradingview-widget-container flex flex-col">
-            <h3 class="mb-4 text-xl font-extrabold leading-none tracking-tight text-gray-900 md:text-2xl lg:text-2xl">Liquidation History</h3>
+            <h3 class="mb-4 text-xl font-extrabold leading-none tracking-tight text-gray-900 md:text-2xl lg:text-2xl">Liquidation History {{ filters.pairs && filters.pairs.base_asset}}</h3>
+
             <div v-if="init"
-                class="container xl mx-auto flex items-end flex-wrap">
+                class="container xl mx-auto flex items-start flex-wrap">
                 <div class="w-2/12 p-2">
-                    <VueSelect
+                    <vue-table
                         v-model="filters.pairs"
-                        :options="symbols"
-                        track-by="symbol"
+                        :data="symbols"
                         label="base_asset"
-                        placeholder="Choose pair..."
+                        class="symbol-table"
                         @update:modelValue="fetch()"
-                    />
+                    ></vue-table>
                 </div>
+                <div class="w-10/12 p-2">
+                    <div v-if="init" class="container xl mx-auto flex items-end flex-wrap">
+                        <div class="w-2/12 px-2">
+                            <VueSelect
+                                v-model="filters.timeframe"
+                                :options="[
+                                    '1h',
+                                    '4h',
+                                    '1D',
+                                ]"
+                                @update:modelValue="fetch()"
+                            />
+                        </div>
 
-                <div class="w-1/12 p-2">
-                    <VueSelect
-                        v-model="filters.timeframe"
-                        :options="[
-                            '1h',
-                            '4h',
-                            '1D',
-                        ]"
-                        @update:modelValue="fetch()"
-                    />
-                </div>
-
-                <div class="w-3/12 p-2">
-                    <VueSelect
-                        v-model="filters.exName"
-                        :options="exchange"
-                        :reduce="exs => exs.code"
-                        label="name"
-                        multiple
-                        disabled
-                        @update:modelValue="fetch()"
-                    />
+                        <div class="w-6/12 px-2">
+                            <VueSelect
+                                v-model="filters.exName"
+                                :options="exchange"
+                                :reduce="exs => exs.code"
+                                label="name"
+                                multiple
+                                disabled
+                                @update:modelValue="fetch()"
+                            />
+                        </div>
+                    </div>
+                    <div class="liquidation-chart">
+                        <canvas id="chart"></canvas>
+                    </div>
                 </div>
             </div>
 
-            <div
-                style="
-                    position: relative;
-                    margin: auto;
-                    margin-top: 20px;
-                    height: 40vh;
-                    width: 80vw;
-                    min-height: 500px;
-                "
-            >
-                <canvas id="chart"></canvas>
-            </div>
         </div>
     </div>
 </template>
 
 <script>
 
+import VueTable from '@/components/VueTable.vue'
 import VueSelect from "vue-select";
 import axios from 'axios'
 import Chart from 'chart.js/auto';
@@ -71,6 +66,7 @@ export default {
     name: 'LiqCoin',
     components: {
         VueSelect,
+        VueTable,
     },
     data() {
         return {
@@ -79,7 +75,63 @@ export default {
             exchange: [],
 
             filters: {
-                pairs: null,
+                pairs: {
+                    base_asset: "BTC",
+                    data: [
+                        {
+                            exchange: "A",
+                            symbol: "BTCUSD_PERP.A",
+                        },
+                        {
+                            exchange: "A",
+                            symbol: "BTCUSDC_PERP.A",
+                        },
+                        {
+                            exchange: "A",
+                            symbol: "BTCUSDT_PERP.A",
+                        },
+                        {
+                            exchange: "6",
+                            symbol: "BTCUSDT.6",
+                        },
+                        {
+                            exchange: "6",
+                            symbol: "BTCUSD.6",
+                        },
+                        {
+                            exchange: "6",
+                            symbol: "BTCUSDU24.6",
+                        },
+                        {
+                            exchange: "6",
+                            symbol: "BTCUSDM24.6",
+                        },
+                        {
+                            exchange: "6",
+                            symbol: "BTCPERP.6",
+                        },
+                        {
+                            exchange: "3",
+                            symbol: "BTCUSDC_PERP.3",
+                        },
+                        {
+                            exchange: "3",
+                            symbol: "BTCUSD_PERP.3",
+                        },
+                        {
+                            exchange: "3",
+                            symbol: "BTCUSDT_PERP.3",
+                        },
+                        {
+                            exchange: "F",
+                            symbol: "BTCEURT_PERP.F",
+                        },
+                        {
+                            exchange: "F",
+                            symbol: "BTCUSDT_PERP.F",
+                        },
+                    ]
+                },
                 exName: ['Binance', 'Bybit', 'OKX', 'Bitfinex'],
                 timeframe: '1h',
             },
@@ -101,6 +153,8 @@ export default {
             await Promise.all(promises);
 
             this.init = true
+            if (this.filters.pairs)
+                this.fetch()
         },
 
         getPair() {
@@ -407,3 +461,18 @@ export default {
     }
 }
 </script>
+
+<style>
+.symbol-table {
+    height: 40vh;
+    min-height: 500px;
+}
+.liquidation-chart {
+    position: relative;
+    margin: auto;
+    margin-top: 20px;
+    height: 40vh;
+    width: 100%;
+    min-height: 500px;
+}
+</style>
