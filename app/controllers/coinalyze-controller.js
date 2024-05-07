@@ -51,7 +51,6 @@ const getAllMarkets = async (req, res) => {
     try {
         const { data } = await axios.get('future-markets')
 
-        res.header("Access-Control-Allow-Origin", "*")
         return res.status(200).json(data)
     } catch (error) {
         handleError(getAllMarkets, req, res, error)
@@ -62,7 +61,6 @@ const getExchange = async (req, res) => {
     try {
         const { data } = await axios.get('exchanges')
 
-        res.header("Access-Control-Allow-Origin", "*")
         return res.status(200).json(data)
     } catch (error) {
         handleError(getExchange, req, res, error)
@@ -76,7 +74,6 @@ const getFutureMarkets = async (req, res) => {
             params: req.query
         })
 
-        res.header("Access-Control-Allow-Origin", "*")
         return res.status(200).json(data)
     } catch (error) {
         handleError(getFutureMarkets, req, res, error)
@@ -90,7 +87,6 @@ const getLiquidation = async (req, res) => {
             params: req.query
         })
 
-        res.header("Access-Control-Allow-Origin", "*")
         return res.status(200).json(data)
     } catch (error) {
         handleError(getLiquidation, req, res, error)
